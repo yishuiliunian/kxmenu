@@ -37,6 +37,7 @@
 */
 
 #import "KxMenu.h"
+#import "ChameleonMacros.h"
 #import <QuartzCore/QuartzCore.h>
 
 const CGFloat kArrowSize = 12.f;
@@ -168,10 +169,7 @@ typedef enum {
         self.backgroundColor = [UIColor clearColor];
         self.opaque = YES;
         self.alpha = 0;
-        
-        self.layer.shadowOpacity = 0.5;
-        self.layer.shadowOffset = CGSizeMake(2, 2);
-        self.layer.shadowRadius = 2;
+
     }
     
     return self;
@@ -624,16 +622,11 @@ typedef enum {
 - (void)drawBackground:(CGRect)frame
              inContext:(CGContextRef) context
 {
-    CGFloat R0 = 0.267, G0 = 0.303, B0 = 0.335;
-    CGFloat R1 = 0.040, G1 = 0.040, B1 = 0.040;
-    
+
     UIColor *tintColor = [KxMenu tintColor];
-    if (tintColor) {
-        
-        CGFloat a;
-        [tintColor getRed:&R0 green:&G0 blue:&B0 alpha:&a];
+    if (!tintColor) {
+        tintColor = [UIColor flatBlackColor];
     }
-    
     CGFloat X0 = frame.origin.x;
     CGFloat X1 = frame.origin.x + frame.size.width;
     CGFloat Y0 = frame.origin.y;
@@ -658,9 +651,7 @@ typedef enum {
         [arrowPath addLineToPoint: (CGPoint){arrowX1, arrowY1}];
         [arrowPath addLineToPoint: (CGPoint){arrowX0, arrowY1}];
         [arrowPath addLineToPoint: (CGPoint){arrowXM, arrowY0}];
-        
-        [[UIColor colorWithRed:R0 green:G0 blue:B0 alpha:1] set];
-        
+        [tintColor set];
         Y0 += kArrowSize;
         
     } else if (_arrowDirection == KxMenuViewArrowDirectionDown) {
@@ -675,8 +666,8 @@ typedef enum {
         [arrowPath addLineToPoint: (CGPoint){arrowX1, arrowY0}];
         [arrowPath addLineToPoint: (CGPoint){arrowX0, arrowY0}];
         [arrowPath addLineToPoint: (CGPoint){arrowXM, arrowY1}];
-        
-        [[UIColor colorWithRed:R1 green:G1 blue:B1 alpha:1] set];
+
+        [tintColor set];
         
         Y1 -= kArrowSize;
         
@@ -692,8 +683,8 @@ typedef enum {
         [arrowPath addLineToPoint: (CGPoint){arrowX1, arrowY0}];
         [arrowPath addLineToPoint: (CGPoint){arrowX1, arrowY1}];
         [arrowPath addLineToPoint: (CGPoint){arrowX0, arrowYM}];
-        
-        [[UIColor colorWithRed:R0 green:G0 blue:B0 alpha:1] set];
+
+        [tintColor set];
         
         X0 += kArrowSize;
         
@@ -709,8 +700,8 @@ typedef enum {
         [arrowPath addLineToPoint: (CGPoint){arrowX1, arrowY0}];
         [arrowPath addLineToPoint: (CGPoint){arrowX1, arrowY1}];
         [arrowPath addLineToPoint: (CGPoint){arrowX0, arrowYM}];
-        
-        [[UIColor colorWithRed:R1 green:G1 blue:B1 alpha:1] set];
+
+        [tintColor set];
         
         X1 -= kArrowSize;
     }
@@ -723,23 +714,10 @@ typedef enum {
     
     UIBezierPath *borderPath = [UIBezierPath bezierPathWithRoundedRect:bodyFrame
                                                           cornerRadius:8];
-        
-    const CGFloat locations[] = {0, 1};
-    const CGFloat components[] = {
-        R0, G0, B0, 1,
-        R1, G1, B1, 1,
-    };
-    
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGGradientRef gradient = CGGradientCreateWithColorComponents(colorSpace,
-                                                                 components,
-                                                                 locations,
-                                                                 sizeof(locations)/sizeof(locations[0]));
-    CGColorSpaceRelease(colorSpace);
-    
-    
+
     [borderPath addClip];
-    
+    [borderPath fill];
+
     CGPoint start, end;
     
     if (_arrowDirection == KxMenuViewArrowDirectionLeft ||
@@ -754,9 +732,6 @@ typedef enum {
         end = (CGPoint){X0, Y1};
     }
     
-    CGContextDrawLinearGradient(context, gradient, start, end, 0);
-    
-    CGGradientRelease(gradient);    
 }
 
 @end
